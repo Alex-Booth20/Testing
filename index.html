@@ -1,0 +1,87 @@
+
+<?php
+/*-------------------------------------------------------*/
+/* Run Theme Blvd framework (required)
+/*-------------------------------------------------------*/
+
+require_once( get_template_directory() . '/framework/themeblvd.php' );
+
+/*-------------------------------------------------------*/
+/* Start Child Theme
+/*-------------------------------------------------------*/
+
+/**
+ * Override Jump Start's default JavaScript and 
+ * re-locate it to the child theme so we can use 
+ * it as a starting point.
+ */
+
+function my_scripts() {
+	// Register child theme file before Jump Start to override
+	wp_register_script( 'themeblvd_theme', get_stylesheet_directory_uri() . '/assets/js/theme.js', array('jquery') );
+}
+add_action( 'wp_enqueue_scripts', 'my_scripts', 9 ); // Use any priority less than 10 to override Jump Start
+
+// Keith Logan Web | Design | Photography custom functions start here //
+
+// Remove default menu from "themeblvd_header_menu" action
+remove_action( 'themeblvd_header_menu', 'themeblvd_header_menu_default' );
+
+// Add default menu function to "themeblvd_header_top" action
+add_action( 'themeblvd_header_top', 'themeblvd_header_menu_default' );
+
+/**
+ * Add Google fonts to <head>
+ */
+function my_fonts(){
+	wp_enqueue_style( 'font_montez', 'http://fonts.googleapis.com/css?family=Montez', '', NULL );
+	wp_enqueue_style( 'font_roboto', 'http://fonts.googleapis.com/css?family=Roboto:300', '', NULL );
+}
+add_action( 'wp_enqueue_scripts', 'my_fonts', 4 );
+
+// Add Custom Image Size //
+
+function my_image_sizes( $sizes ) {
+     
+    $sizes['my_size'] = array(
+        'name'      => 'Full Width 960px',
+        'width'     => 960,
+        'height'    => 491,
+        'crop'      => true
+    );
+ 
+    return $sizes;
+ 
+}
+add_filter( 'themeblvd_image_sizes', 'my_image_sizes' );
+
+// Allow custom image sizes within the Bootstrap Carousel //
+
+function my_recognized_sliders( $sliders ) {
+	$sliders['bootstrap']['custom_size'] = true;
+	return $sliders;
+}
+add_filter( 'themeblvd_recognized_sliders', 'my_recognized_sliders' );
+
+/*-------------------------------------------------------*/
+/* Allow shortcodes to be executed in text widgets
+/*-------------------------------------------------------*/
+
+add_filter('widget_text', 'do_shortcode');
+
+/* Add telephone number into the nav bar */
+
+function my_header_addon() {
+     echo '<div class="nav-telephone"><h3>+44 (0) 7968 655479</h3>';
+     echo '</div>';
+}
+add_action( 'themeblvd_header_top', 'my_header_addon' );
+
+/* Add title above a carousel */
+
+function my_title_addon( $slider_id ) {
+     if ( $slider_id == 'home-page-bootstrap-carousel' ) {
+          echo '<div class="carousel-title"><h3>My Title</h3></div>';
+     }
+}
+add_action( 'themeblvd_boostrap_slider', 'my_title_addon', 9, 1 );
